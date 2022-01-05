@@ -1,18 +1,29 @@
-import qrcode
-import qrcode.image.svg
+import sys
+import Controller
+from PyQt5.QtCore import QTime
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 
-factory = qrcode.image.svg.SvgPathFillImage
+from Trace import Ui_MainWindow
 
-data =  "0\t"\
-        "Bysco Technology (Shenzhen) Co., Ltd\t" \
-        "BY-SG A020210104\t" \
-        "04/01/2021\t" \
-        "Sun JinLong\t" \
-        "MiniSM50-LB-F1616\t" \
-        "100\t" \
-        "Wu Shao Hua Ben\t" \
-        "05/01/2022\n"
 
-img = qrcode.make(data, image_factory=factory)
-# Save svg file somewhere
-img.save("qrcode.svg")
+class Main(QMainWindow, Ui_MainWindow):
+    def __init__(self, parent=None):
+        # Set up User Interface
+        QMainWindow.__init__(self, parent=parent)
+        self.setupUi(self)
+        self.initialiseObject()
+
+
+    def initialiseObject(self):
+        self.newExcelButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
+        self.createFileButton.clicked.connect(lambda: Controller.createCSV())
+
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    app.setStyle("fusion")
+    window = Main()
+    window.show()
+
+    sys.exit(app.exec())
