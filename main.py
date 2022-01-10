@@ -1,8 +1,10 @@
+import os
 import sys
 import Controller
 from PyQt5.QtCore import QTime
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog
 import csv
+
 from Trace import Ui_MainWindow
 
 
@@ -18,6 +20,9 @@ class Main(QMainWindow, Ui_MainWindow):
         self.createFileButton.clicked.connect(lambda: self.createCSV())
         self.createFileButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.backButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+        self.backButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+        self.importExcelButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
+        self.openFileDialogButton.clicked.connect(lambda: self.openFileDialog())
 
     def createCSV(self):
         # Get CSV name
@@ -37,6 +42,19 @@ class Main(QMainWindow, Ui_MainWindow):
         msg.setWindowTitle("Success!")
         msg.setText("File successfully created.")
         msg.exec_()
+
+    def openFileDialog(self):
+        directory = os.path.dirname(__file__)
+        path = QFileDialog.getOpenFileName(self, "Import File", directory, 'All Files (*.*)')
+
+        if path[0].endswith(".text") or path[0].endswith(".txt") or path[0].endswith(".csv") or path[0].endswith(
+                ".xslx"):
+            self.openFileNameTextEdit.setPlainText(path[0])
+        else:
+            msg = QMessageBox()
+            msg.setWindowTitle("Error!")
+            msg.setText("Invalid file type. Please select another file.")
+            msg.exec_()
 
 
 if __name__ == '__main__':
