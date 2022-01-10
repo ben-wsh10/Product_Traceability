@@ -101,6 +101,16 @@ class Ui_MainWindow(object):
         self.createFileButton.setMaximumSize(QtCore.QSize(200, 40))
         self.createFileButton.setObjectName("createFileButton")
         self.verticalLayout_3.addWidget(self.createFileButton, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.backButton = QtWidgets.QPushButton(self.CreateExcelPage)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.backButton.sizePolicy().hasHeightForWidth())
+        self.backButton.setSizePolicy(sizePolicy)
+        self.backButton.setMinimumSize(QtCore.QSize(100, 30))
+        self.backButton.setMaximumSize(QtCore.QSize(100, 30))
+        self.backButton.setObjectName("backButton")
+        self.verticalLayout_3.addWidget(self.backButton)
         self.verticalLayout.addLayout(self.verticalLayout_3)
         self.verticalLayout_2.addLayout(self.verticalLayout)
         self.stackedWidget.addWidget(self.CreateExcelPage)
@@ -116,7 +126,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -127,6 +137,7 @@ class Ui_MainWindow(object):
         self.newFileNameLabel.setText(_translate("MainWindow", "New File Name :                        "))
         self.newFileNameTextEdit.setPlaceholderText(_translate("MainWindow", "example"))
         self.createFileButton.setText(_translate("MainWindow", "Create Excel"))
+        self.backButton.setText(_translate("MainWindow", "Back"))
 
 
 if __name__ == "__main__":

@@ -16,16 +16,4 @@
 # img = qrcode.make(data, image_factory=factory)
 # # Save svg file somewhere
 # img.save("qrcode.svg")
-import csv
 
-
-def createCSV():
-    # open the file in the write mode
-    with open(r'C:\Users\Ben\Desktop\example.csv', 'w') as f:
-        # create the csv writer
-        writer = csv.writer(f)
-        header = ['S/N', 'Company Address', 'Invoice No.', 'Invoice Date', 'Attn To', 'Model', 'Quantity',
-                  'Signature', 'Date']
-
-        # write a row to the csv file
-        writer.writerow(header)
