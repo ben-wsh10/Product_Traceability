@@ -9,6 +9,8 @@ import pandas as pd
 from Trace import Ui_MainWindow
 
 path = ""
+counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks = "", "", "", "", "", "", "", "", "", ""
+infoList = []
 
 
 class Main(QMainWindow, Ui_MainWindow):
@@ -30,6 +32,9 @@ class Main(QMainWindow, Ui_MainWindow):
         self.openFileDialogButton.clicked.connect(lambda: self.openFileDialog())
         self.openFileButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
         self.openFileButton.clicked.connect(lambda: self.populateTable())
+        self.backButton4.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
+        self.nextButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
+        self.writeButton.clicked.connect(lambda: self.writeToCSV())
 
     def createCSV(self):
         # Get CSV name
@@ -78,6 +83,30 @@ class Main(QMainWindow, Ui_MainWindow):
         for i in range(rowCount):
             for j in range(columnCount):
                 self.excelTable.setItem(i, j, QTableWidgetItem(str(df.iat[i, j])))
+
+    def writeToCSV(self):
+        global path, counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks, infoList
+
+        counter = self.counterTextEdit.toPlainText()
+        cAddress = self.cAddressTextEdit.toPlainText()
+        iNumber = self.iNumberTextEdit.toPlainText()
+        iDate = self.iDateTextEdit.toPlainText()
+        aTo = self.aToTextEdit.toPlainText()
+        product = self.productTextEdit.toPlainText()
+        quantity = self.quantityTextEdit.toPlainText()
+        signature = self.signatureTextEdit.toPlainText()
+        sODate = self.sODateTextEdit.toPlainText()
+        remarks = self.remarksTextEdit.toPlainText()
+        infoList = [counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks]
+        print(counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks)
+        print("\n")
+        print(infoList)
+
+        # df = pd.read_csv(path[0])
+
+        with open(path[0], 'a') as excelFile:
+            writer = csv.writer(excelFile)
+            writer.writerow(infoList)
 
 
 if __name__ == '__main__':
