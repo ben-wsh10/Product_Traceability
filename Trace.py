@@ -213,7 +213,7 @@ class Ui_MainWindow(object):
         self.excelTable.setRowCount(50)
         self.excelTable.setColumnCount(9)
         self.excelTable.setObjectName("excelTable")
-        self.excelTable.horizontalHeader().setVisible(False)
+        self.excelTable.horizontalHeader().setVisible(True)
         self.excelTable.horizontalHeader().setDefaultSectionSize(89)
         self.excelTable.horizontalHeader().setHighlightSections(True)
         self.excelTable.horizontalHeader().setMinimumSectionSize(39)
@@ -595,7 +595,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(4)
+        self.stackedWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

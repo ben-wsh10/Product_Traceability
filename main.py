@@ -39,11 +39,20 @@ class Main(QMainWindow, Ui_MainWindow):
         self.openFileButton.clicked.connect(lambda: self.populateTable())
         self.backButton4.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
         self.nextButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
+        self.writeButton.setEnabled(False)
         self.writeButton.clicked.connect(lambda: self.writeToCSV())
         self.writeButton.clicked.connect(lambda: self.generateQRCode())
 
         self.iDateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
         self.sODateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
+
+        self.counterTextEdit.textChanged.connect(lambda: self.boolWriteButton())
+        self.cAddressTextEdit.textChanged.connect(lambda: self.boolWriteButton())
+        self.iNumberTextEdit.textChanged.connect(lambda: self.boolWriteButton())
+        self.aToTextEdit.textChanged.connect(lambda: self.boolWriteButton())
+        self.productTextEdit.textChanged.connect(lambda: self.boolWriteButton())
+        self.quantityTextEdit.textChanged.connect(lambda: self.boolWriteButton())
+        self.signatureTextEdit.textChanged.connect(lambda: self.boolWriteButton())
 
     def createCSV(self):
         # Get CSV name
@@ -108,7 +117,10 @@ class Main(QMainWindow, Ui_MainWindow):
         quantity = self.quantityTextEdit.toPlainText()
         signature = self.signatureTextEdit.toPlainText()
         sODate = self.sODateEdit.date().toPyDate()
-        remarks = self.remarksTextEdit.toPlainText()
+        if self.remarksTextEdit.toPlainText() != "":
+            remarks = self.remarksTextEdit.toPlainText()
+        else:
+            remarks = "-"
         infoList = [counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks]
 
         print(iDate.strftime("%d-%m-%Y"))
@@ -118,6 +130,19 @@ class Main(QMainWindow, Ui_MainWindow):
             writer.writerow(infoList)
 
         self.updateCounter()
+
+    def boolWriteButton(self):
+
+        if len(self.counterTextEdit.toPlainText().strip()) != 0 and \
+                len(self.cAddressTextEdit.toPlainText().strip()) != 0 and \
+                len(self.iNumberTextEdit.toPlainText().strip()) != 0 and \
+                len(self.aToTextEdit.toPlainText().strip()) != 0 and \
+                len(self.productTextEdit.toPlainText().strip()) != 0 and \
+                len(self.quantityTextEdit.toPlainText().strip()) != 0 and \
+                len(self.signatureTextEdit.toPlainText().strip()) != 0:
+            self.writeButton.setEnabled(True)
+        else:
+            self.writeButton.setEnabled(False)
 
     def updateCounter(self):
         global path

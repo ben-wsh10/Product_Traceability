@@ -23,7 +23,7 @@
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>4</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="MainMenuPage">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -470,7 +470,7 @@
                  <number>9</number>
                 </property>
                 <attribute name="horizontalHeaderVisible">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </attribute>
                 <attribute name="horizontalHeaderDefaultSectionSize">
                  <number>89</number>
