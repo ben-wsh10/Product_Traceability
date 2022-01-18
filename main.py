@@ -1,10 +1,14 @@
 import os
 import sys
+
+from PyQt5 import QtSvg, QtGui, QtCore
+
 import Controller
-from PyQt5.QtCore import QTime
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QTableWidgetItem
+from PyQt5.QtCore import QTime, QSize
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QTableWidgetItem, QHeaderView
 import csv
 import pandas as pd
+import qrcode.image.svg
 
 from Trace import Ui_MainWindow
 
@@ -35,6 +39,7 @@ class Main(QMainWindow, Ui_MainWindow):
         self.backButton4.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
         self.nextButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
         self.writeButton.clicked.connect(lambda: self.writeToCSV())
+        self.writeButton.clicked.connect(lambda: self.generateQRCode())
 
     def createCSV(self):
         # Get CSV name
@@ -78,7 +83,8 @@ class Main(QMainWindow, Ui_MainWindow):
         columnCount = len(df.columns)
         self.excelTable.setColumnCount(columnCount)
         self.excelTable.setRowCount(rowCount)
-        self.excelTable.setHorizontalHeaderLabels(df.columns)
+        self.excelTable.setHorizontalHeaderLabels(list(df.columns))
+        self.excelTable.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
 
         for i in range(rowCount):
             for j in range(columnCount):
@@ -107,6 +113,24 @@ class Main(QMainWindow, Ui_MainWindow):
         with open(path[0], 'a') as excelFile:
             writer = csv.writer(excelFile)
             writer.writerow(infoList)
+
+    def generateQRCode(self):
+        data = "S/N : " + counter + \
+               "\nCompany Address : " + cAddress + \
+               "\nInvoice Number : " + iNumber + \
+               "\nInvoice Date : " + iDate + \
+               "\nAttention To : " + aTo + \
+               "\nProduct : " + product + \
+               "\nQuantity : " + quantity + \
+               "\nSignature : " + signature + \
+               "\nSigned off Date : " + sODate + \
+               "\nRemarks : " + remarks
+        img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
+        saveName = str(counter) + str(product) + str(sODate)
+        img.save(saveName + ".svg")
+        pixmap = QtGui.QPixmap(saveName + ".svg")
+        self.qrCode.setPixmap(pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio))
+        self.qrCode.show()
 
 
 if __name__ == '__main__':

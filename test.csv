@@ -1,0 +1,10 @@
+S/N,Company Address,Invoice No.,Invoice Date,Attn To,Model,Quantity,Signature,Date,Remarks
+0,Elsa,1,10/1/2022,Jin Long,screw,100,ben,10/1/2022,Nil
+1,Bach,2,11/1/2022,Jin Long,Tape,200,Jimmy,11/1/2022,Reason 1
+2,Tesla,3,12/1/2022,Jimmy,Cup,300,Xiao Wei,12/1/2022,Reason 2
+3,Google,4,13/1/2022,Jin Long,Holder,400,Jimmy,13/1/2022,Nil
+4,Equinix,5,14/1/2022,Jimmy,Box,500,Xiao Wei,14/1/2022,Reason 4
+5,Dell,6,15/1/2022,Jimmy,Wire,600,Jimmy,15/1/2022,Nil
+6,Adelphi,7,16/1/2022,Jin Long,Ruler,700,Xiao Wei,16/1/2022,Reason 6
+7,MBS,8,17/1/2022,Jin Long,Pencil,800,Xiao Wei,17/1/2022,Nil
+12,312312,,312,312,312,,313133,,13
