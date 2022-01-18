@@ -5,7 +5,8 @@ from PyQt5 import QtSvg, QtGui, QtCore
 
 import Controller
 from PyQt5.QtCore import QTime, QSize
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QTableWidgetItem, QHeaderView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QTableWidgetItem, QHeaderView, \
+    QCalendarWidget
 import csv
 import pandas as pd
 import qrcode.image.svg
@@ -40,6 +41,9 @@ class Main(QMainWindow, Ui_MainWindow):
         self.nextButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
         self.writeButton.clicked.connect(lambda: self.writeToCSV())
         self.writeButton.clicked.connect(lambda: self.generateQRCode())
+
+        self.iDateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
+        self.sODateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
 
     def createCSV(self):
         # Get CSV name
@@ -98,19 +102,16 @@ class Main(QMainWindow, Ui_MainWindow):
         counter = self.counterTextEdit.toPlainText()
         cAddress = self.cAddressTextEdit.toPlainText()
         iNumber = self.iNumberTextEdit.toPlainText()
-        iDate = self.iDateTextEdit.toPlainText()
+        iDate = self.iDateEdit.date().toPyDate()
         aTo = self.aToTextEdit.toPlainText()
         product = self.productTextEdit.toPlainText()
         quantity = self.quantityTextEdit.toPlainText()
         signature = self.signatureTextEdit.toPlainText()
-        sODate = self.sODateTextEdit.toPlainText()
+        sODate = self.sODateEdit.date().toPyDate()
         remarks = self.remarksTextEdit.toPlainText()
         infoList = [counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks]
-        print(counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks)
-        print("\n")
-        print(infoList)
 
-        # df = pd.read_csv(path[0])
+        print(iDate.strftime("%d-%m-%Y"))
 
         with open(path[0], 'a') as excelFile:
             writer = csv.writer(excelFile)
@@ -128,15 +129,16 @@ class Main(QMainWindow, Ui_MainWindow):
         data = "S/N : " + counter + \
                "\nCompany Address : " + cAddress + \
                "\nInvoice Number : " + iNumber + \
-               "\nInvoice Date : " + iDate + \
+               "\nInvoice Date : " + iDate.strftime("%d-%m-%Y") + \
                "\nAttention To : " + aTo + \
                "\nProduct : " + product + \
                "\nQuantity : " + quantity + \
                "\nSignature : " + signature + \
-               "\nSigned off Date : " + sODate + \
+               "\nSigned off Date : " + sODate.strftime("%d-%m-%Y") + \
                "\nRemarks : " + remarks
         img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
-        saveName = str(counter) + str(product) + str(sODate)
+        # print(iDate)
+        saveName = str(counter) + "_" + str(iNumber) + "_" + str(iDate.strftime("%d%m%Y"))
         img.save(saveName + ".svg")
         pixmap = QtGui.QPixmap(saveName + ".svg")
         self.qrCode.setPixmap(pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio))

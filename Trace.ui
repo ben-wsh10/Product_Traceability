@@ -23,7 +23,7 @@
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>2</number>
+         <number>4</number>
         </property>
         <widget class="QWidget" name="MainMenuPage">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -833,7 +833,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPlainTextEdit" name="iDateTextEdit">
+                   <widget class="QDateEdit" name="iDateEdit">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                       <horstretch>0</horstretch>
@@ -842,7 +842,7 @@
                     </property>
                     <property name="minimumSize">
                      <size>
-                      <width>350</width>
+                      <width>349</width>
                       <height>40</height>
                      </size>
                     </property>
@@ -851,6 +851,15 @@
                       <width>350</width>
                       <height>40</height>
                      </size>
+                    </property>
+                    <property name="readOnly">
+                     <bool>false</bool>
+                    </property>
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::UpDownArrows</enum>
+                    </property>
+                    <property name="calendarPopup">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
@@ -1118,7 +1127,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPlainTextEdit" name="sODateTextEdit">
+                   <widget class="QDateEdit" name="sODateEdit">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                       <horstretch>0</horstretch>
@@ -1136,6 +1145,22 @@
                       <width>350</width>
                       <height>40</height>
                      </size>
+                    </property>
+                    <property name="readOnly">
+                     <bool>false</bool>
+                    </property>
+                    <property name="dateTime">
+                     <datetime>
+                      <hour>0</hour>
+                      <minute>0</minute>
+                      <second>0</second>
+                      <year>2000</year>
+                      <month>1</month>
+                      <day>2</day>
+                     </datetime>
+                    </property>
+                    <property name="calendarPopup">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
