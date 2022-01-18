@@ -90,6 +90,8 @@ class Main(QMainWindow, Ui_MainWindow):
             for j in range(columnCount):
                 self.excelTable.setItem(i, j, QTableWidgetItem(str(df.iat[i, j])))
 
+        self.updateCounter()
+
     def writeToCSV(self):
         global path, counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks, infoList
 
@@ -113,6 +115,14 @@ class Main(QMainWindow, Ui_MainWindow):
         with open(path[0], 'a') as excelFile:
             writer = csv.writer(excelFile)
             writer.writerow(infoList)
+
+        self.updateCounter()
+
+    def updateCounter(self):
+        global path
+
+        df = pd.read_csv(path[0])
+        self.counterTextEdit.setPlainText(str(len(df.index) + 1))
 
     def generateQRCode(self):
         data = "S/N : " + counter + \

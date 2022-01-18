@@ -213,7 +213,7 @@ class Ui_MainWindow(object):
         self.excelTable.setRowCount(50)
         self.excelTable.setColumnCount(9)
         self.excelTable.setObjectName("excelTable")
-        self.excelTable.horizontalHeader().setVisible(True)
+        self.excelTable.horizontalHeader().setVisible(False)
         self.excelTable.horizontalHeader().setDefaultSectionSize(89)
         self.excelTable.horizontalHeader().setHighlightSections(True)
         self.excelTable.horizontalHeader().setMinimumSectionSize(39)
@@ -281,6 +281,7 @@ class Ui_MainWindow(object):
         self.counterTextEdit.setSizePolicy(sizePolicy)
         self.counterTextEdit.setMinimumSize(QtCore.QSize(350, 40))
         self.counterTextEdit.setMaximumSize(QtCore.QSize(350, 40))
+        self.counterTextEdit.setReadOnly(True)
         self.counterTextEdit.setObjectName("counterTextEdit")
         self.horizontalLayout_18.addWidget(self.counterTextEdit)
         self.verticalLayout_12.addLayout(self.horizontalLayout_18)
@@ -588,7 +589,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
