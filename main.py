@@ -6,7 +6,7 @@ from PyQt5 import QtSvg, QtGui, QtCore
 import Controller
 from PyQt5.QtCore import QTime, QSize
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QTableWidgetItem, QHeaderView, \
-    QCalendarWidget
+    QCalendarWidget, QListWidgetItem
 import csv
 import pandas as pd
 import qrcode.image.svg
@@ -24,6 +24,7 @@ class Main(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self, parent=parent)
         self.setupUi(self)
         self.initialiseObject()
+        self.materialListItem()
 
     def initialiseObject(self):
         self.newExcelButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
@@ -111,7 +112,7 @@ class Main(QMainWindow, Ui_MainWindow):
         counter = self.counterTextEdit.toPlainText()
         cAddress = self.cAddressTextEdit.toPlainText()
         iNumber = self.iNumberTextEdit.toPlainText()
-        iDate = self.iDateEdit.date().toPyDate()
+        iDate = self.iDateEdit.date().toPyDate().strftime("%d-%m-%Y")
         aTo = self.aToTextEdit.toPlainText()
         product = self.productTextEdit.toPlainText()
         quantity = self.quantityTextEdit.toPlainText()
@@ -122,8 +123,6 @@ class Main(QMainWindow, Ui_MainWindow):
         else:
             remarks = "-"
         infoList = [counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks]
-
-        print(iDate.strftime("%d-%m-%Y"))
 
         with open(path[0], 'a') as excelFile:
             writer = csv.writer(excelFile)
@@ -162,12 +161,15 @@ class Main(QMainWindow, Ui_MainWindow):
                "\nSigned off Date : " + sODate.strftime("%d-%m-%Y") + \
                "\nRemarks : " + remarks
         img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
-        # print(iDate)
         saveName = str(counter) + "_" + str(iNumber) + "_" + str(iDate.strftime("%d%m%Y"))
         img.save(saveName + ".svg")
         pixmap = QtGui.QPixmap(saveName + ".svg")
         self.qrCode.setPixmap(pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio))
         self.qrCode.show()
+
+    def materialListItem(self):
+        item1 = QListWidgetItem("A")
+        self.materialList.addItem(item1)
 
 
 if __name__ == '__main__':
