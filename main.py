@@ -24,7 +24,6 @@ class Main(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self, parent=parent)
         self.setupUi(self)
         self.initialiseObject()
-        self.materialListItem()
 
     def initialiseObject(self):
         self.newExcelButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
@@ -34,12 +33,14 @@ class Main(QMainWindow, Ui_MainWindow):
         self.backButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.backButton3.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
         self.backButton3.clicked.connect(lambda: self.excelTable.clear())
+        self.backButton4.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
+        self.backButton5.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
         self.importExcelButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
         self.openFileDialogButton.clicked.connect(lambda: self.openFileDialog())
         self.openFileButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
         self.openFileButton.clicked.connect(lambda: self.populateTable())
-        self.backButton4.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
         self.nextButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
+        self.nextButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(5))
         self.writeButton.setEnabled(False)
         self.writeButton.clicked.connect(lambda: self.writeToCSV())
         self.writeButton.clicked.connect(lambda: self.generateQRCode())
@@ -106,6 +107,8 @@ class Main(QMainWindow, Ui_MainWindow):
 
         self.updateCounter()
 
+        self.materialListItem()
+
     def writeToCSV(self):
         global path, counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks, infoList
 
@@ -168,8 +171,16 @@ class Main(QMainWindow, Ui_MainWindow):
         self.qrCode.show()
 
     def materialListItem(self):
-        item1 = QListWidgetItem("A")
-        self.materialList.addItem(item1)
+        global path
+
+        df = pd.read_csv(path[0])
+        excelList = df.values.tolist()
+
+        for _ in range(len(excelList)):
+            tmp = excelList[_]
+            convertedList = [str(element) for element in tmp]
+            joinedString = ", ".join(convertedList)
+            self.materialList.addItem(joinedString)
 
 
 if __name__ == '__main__':
