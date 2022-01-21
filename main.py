@@ -13,6 +13,7 @@ import qrcode.image.svg
 
 from Trace import Ui_MainWindow
 
+csvFileName = ""
 path = ""
 counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks = "", "", "", "", "", "", "", "", "", ""
 infoList = []
@@ -26,24 +27,39 @@ class Main(QMainWindow, Ui_MainWindow):
         self.initialiseObject()
 
     def initialiseObject(self):
+
         self.newExcelButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
+        self.newExcelButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(5))
+
         self.createFileButton.clicked.connect(lambda: self.createCSV())
+        self.createFileButton2.clicked.connect(lambda: self.createCSV())
         self.createFileButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+        self.createFileButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+
         self.backButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.backButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.backButton3.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
         self.backButton3.clicked.connect(lambda: self.excelTable.clear())
         self.backButton4.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
         self.backButton5.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
-        self.importExcelButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
-        self.openFileDialogButton.clicked.connect(lambda: self.openFileDialog())
-        self.openFileButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
-        self.openFileButton.clicked.connect(lambda: self.populateTable())
+        self.backButton6.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+        self.backButton7.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+
         self.nextButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
         self.nextButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(5))
         self.writeButton.setEnabled(False)
         self.writeButton.clicked.connect(lambda: self.writeToCSV())
         self.writeButton.clicked.connect(lambda: self.generateQRCode())
+
+        self.importExcelButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
+        self.importExcelButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(6))
+
+        self.openFileDialogButton.clicked.connect(lambda: self.openMaterialFileDialog())
+        self.openFileDialogButton2.clicked.connect(lambda: self.openMaterialFileDialog())
+        self.openFileDialogButton3.clicked.connect(lambda: self.openAssembledFileDialog())
+
+        self.openFileButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
+        self.openFileButton.clicked.connect(lambda: self.populateTable())
 
         self.iDateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
         self.sODateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
@@ -58,14 +74,23 @@ class Main(QMainWindow, Ui_MainWindow):
 
     def createCSV(self):
         # Get CSV name
-        csvFileName = self.newFileNameTextEdit.toPlainText() + ".csv"
+        global csvFileName
+
+        if self.stackedWidget.currentIndex() == 1:
+            csvFileName = self.newFileNameTextEdit.toPlainText() + ".csv"
+        elif self.stackedWidget.currentIndex() == 5:
+            csvFileName = self.newFileNameTextEdit2.toPlainText() + ".csv"
 
         # open the file in the write mode
         with open(csvFileName, 'w') as newFile:
             # create the csv writer
             writer = csv.writer(newFile)
-            header = ['S/N', 'Company Address', 'Invoice No.', 'Invoice Date', 'Attn To', 'Model', 'Quantity',
-                      'Signature', 'Date']
+            if self.stackedWidget.currentIndex() == 1:
+                header = ['S/N', 'Company Address', 'Invoice No.', 'Invoice Date', 'Attn To', 'Model', 'Quantity',
+                          'Signature', 'Date']
+            elif self.stackedWidget.currentIndex() == 5:
+                header = ['S/N', 'Product Name', 'Tested By', 'Testing Date', 'Signature', 'Sign off Date',
+                          'Remarks', 'Materials']
 
             # write a row to the csv file
             writer.writerow(header)
@@ -75,15 +100,32 @@ class Main(QMainWindow, Ui_MainWindow):
         msg.setText("File successfully created.")
         msg.exec_()
 
-    def openFileDialog(self):
+    def openMaterialFileDialog(self):
         global path
 
         directory = os.path.dirname(__file__)
         path = QFileDialog.getOpenFileName(self, "Import File", directory, 'All Files (*.*)')
 
-        if path[0].endswith(".text") or path[0].endswith(".txt") or path[0].endswith(".csv") or path[0].endswith(
-                ".xslx"):
-            self.openFileNameTextEdit.setPlainText(path[0])
+        if path[0].endswith(".text") or path[0].endswith(".txt") or path[0].endswith(".csv") or path[0].endswith(".xslx"):
+            if self.stackedWidget.currentIndex() == 2:
+                self.openFileNameTextEdit.setPlainText(path[0])
+            elif self.stackedWidget.currentIndex() == 5:
+                self.openFileNameTextEdit2.setPlainText(path[0])
+        else:
+            msg = QMessageBox()
+            msg.setWindowTitle("Error!")
+            msg.setText("Invalid file type. Please select another file.")
+            msg.exec_()
+
+    def openAssembledFileDialog(self):
+        global path
+
+        directory = os.path.dirname(__file__)
+        path = QFileDialog.getOpenFileName(self, "Import File", directory, 'All Files (*.*)')
+
+        if path[0].endswith(".text") or path[0].endswith(".txt") or path[0].endswith(".csv") or path[0].endswith(".xslx"):
+            if self.stackedWidget.currentIndex() == 5:
+                self.openFileNameTextEdit3.setPlainText(path[0])
         else:
             msg = QMessageBox()
             msg.setWindowTitle("Error!")
