@@ -41,12 +41,14 @@ class Main(QMainWindow, Ui_MainWindow):
         self.backButton3.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
         self.backButton3.clicked.connect(lambda: self.excelTable.clear())
         self.backButton4.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
-        self.backButton5.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
+        self.backButton5.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(7))
         self.backButton6.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.backButton7.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+        self.backButton8.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(6))
 
         self.nextButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
         self.nextButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(5))
+        self.nextButton4.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(8))
         self.writeButton.setEnabled(False)
         self.writeButton.clicked.connect(lambda: self.writeToCSV())
         self.writeButton.clicked.connect(lambda: self.generateQRCode())
@@ -59,7 +61,9 @@ class Main(QMainWindow, Ui_MainWindow):
         self.openFileDialogButton3.clicked.connect(lambda: self.openAssembledFileDialog())
 
         self.openFileButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
+        self.openFileButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(7))
         self.openFileButton.clicked.connect(lambda: self.populateTable())
+        self.openFileButton2.clicked.connect(lambda: self.populateTable())
 
         self.iDateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
         self.sODateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
@@ -109,7 +113,7 @@ class Main(QMainWindow, Ui_MainWindow):
         if path[0].endswith(".text") or path[0].endswith(".txt") or path[0].endswith(".csv") or path[0].endswith(".xslx"):
             if self.stackedWidget.currentIndex() == 2:
                 self.openFileNameTextEdit.setPlainText(path[0])
-            elif self.stackedWidget.currentIndex() == 5:
+            elif self.stackedWidget.currentIndex() == 6:
                 self.openFileNameTextEdit2.setPlainText(path[0])
         else:
             msg = QMessageBox()
@@ -124,7 +128,7 @@ class Main(QMainWindow, Ui_MainWindow):
         path = QFileDialog.getOpenFileName(self, "Import File", directory, 'All Files (*.*)')
 
         if path[0].endswith(".text") or path[0].endswith(".txt") or path[0].endswith(".csv") or path[0].endswith(".xslx"):
-            if self.stackedWidget.currentIndex() == 5:
+            if self.stackedWidget.currentIndex() == 6:
                 self.openFileNameTextEdit3.setPlainText(path[0])
         else:
             msg = QMessageBox()
@@ -138,14 +142,25 @@ class Main(QMainWindow, Ui_MainWindow):
         df = pd.read_csv(path[0])
         rowCount = len(df.index)
         columnCount = len(df.columns)
-        self.excelTable.setColumnCount(columnCount)
-        self.excelTable.setRowCount(rowCount)
-        self.excelTable.setHorizontalHeaderLabels(list(df.columns))
-        self.excelTable.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        if self.stackedWidget.currentIndex() == 3:
+            self.excelTable.setColumnCount(columnCount)
+            self.excelTable.setRowCount(rowCount)
+            self.excelTable.setHorizontalHeaderLabels(list(df.columns))
+            self.excelTable.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
 
-        for i in range(rowCount):
-            for j in range(columnCount):
-                self.excelTable.setItem(i, j, QTableWidgetItem(str(df.iat[i, j])))
+            for i in range(rowCount):
+                for j in range(columnCount):
+                    self.excelTable.setItem(i, j, QTableWidgetItem(str(df.iat[i, j])))
+
+        elif self.stackedWidget.currentIndex() == 7:
+            self.excelTable2.setColumnCount(columnCount)
+            self.excelTable2.setRowCount(rowCount)
+            self.excelTable2.setHorizontalHeaderLabels(list(df.columns))
+            self.excelTable2.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+
+            for i in range(rowCount):
+                for j in range(columnCount):
+                    self.excelTable2.setItem(i, j, QTableWidgetItem(str(df.iat[i, j])))
 
         self.updateCounter()
 
