@@ -14,9 +14,11 @@ import qrcode.image.svg
 from Trace import Ui_MainWindow
 
 csvFileName = ""
-path = ""
+materialPath, assembledPath = "", ""
 counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks = "", "", "", "", "", "", "", "", "", ""
-infoList = []
+counter2, pName, tBy, tDate, signature2, sODate2, remarks2 = "", "", "", "", "", "", ""
+
+partList, assembledList = [], []
 
 
 class Main(QMainWindow, Ui_MainWindow):
@@ -51,7 +53,9 @@ class Main(QMainWindow, Ui_MainWindow):
         self.nextButton4.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(8))
         self.writeButton.setEnabled(False)
         self.writeButton.clicked.connect(lambda: self.writeToCSV())
+        self.writeButton2.clicked.connect(lambda: self.writeToCSV())
         self.writeButton.clicked.connect(lambda: self.generateQRCode())
+        self.writeButton2.clicked.connect(lambda: self.generateQRCode())
 
         self.importExcelButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
         self.importExcelButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(6))
@@ -66,7 +70,9 @@ class Main(QMainWindow, Ui_MainWindow):
         self.openFileButton2.clicked.connect(lambda: self.populateTable())
 
         self.iDateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
+        self.tDateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
         self.sODateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
+        self.sODateEdit2.setDateTime(QtCore.QDateTime.currentDateTime())
 
         self.counterTextEdit.textChanged.connect(lambda: self.boolWriteButton())
         self.cAddressTextEdit.textChanged.connect(lambda: self.boolWriteButton())
@@ -105,16 +111,16 @@ class Main(QMainWindow, Ui_MainWindow):
         msg.exec_()
 
     def openMaterialFileDialog(self):
-        global path
+        global materialPath
 
         directory = os.path.dirname(__file__)
-        path = QFileDialog.getOpenFileName(self, "Import File", directory, 'All Files (*.*)')
+        materialPath = QFileDialog.getOpenFileName(self, "Import File", directory, 'All Files (*.*)')
 
-        if path[0].endswith(".text") or path[0].endswith(".txt") or path[0].endswith(".csv") or path[0].endswith(".xslx"):
+        if materialPath[0].endswith(".text") or materialPath[0].endswith(".txt") or materialPath[0].endswith(".csv") or materialPath[0].endswith(".xslx"):
             if self.stackedWidget.currentIndex() == 2:
-                self.openFileNameTextEdit.setPlainText(path[0])
+                self.openFileNameTextEdit.setPlainText(materialPath[0])
             elif self.stackedWidget.currentIndex() == 6:
-                self.openFileNameTextEdit2.setPlainText(path[0])
+                self.openFileNameTextEdit2.setPlainText(materialPath[0])
         else:
             msg = QMessageBox()
             msg.setWindowTitle("Error!")
@@ -122,14 +128,14 @@ class Main(QMainWindow, Ui_MainWindow):
             msg.exec_()
 
     def openAssembledFileDialog(self):
-        global path
+        global assembledPath
 
         directory = os.path.dirname(__file__)
-        path = QFileDialog.getOpenFileName(self, "Import File", directory, 'All Files (*.*)')
+        assembledPath = QFileDialog.getOpenFileName(self, "Import File", directory, 'All Files (*.*)')
 
-        if path[0].endswith(".text") or path[0].endswith(".txt") or path[0].endswith(".csv") or path[0].endswith(".xslx"):
+        if assembledPath[0].endswith(".text") or assembledPath[0].endswith(".txt") or assembledPath[0].endswith(".csv") or assembledPath[0].endswith(".xslx"):
             if self.stackedWidget.currentIndex() == 6:
-                self.openFileNameTextEdit3.setPlainText(path[0])
+                self.openFileNameTextEdit3.setPlainText(assembledPath[0])
         else:
             msg = QMessageBox()
             msg.setWindowTitle("Error!")
@@ -137,12 +143,12 @@ class Main(QMainWindow, Ui_MainWindow):
             msg.exec_()
 
     def populateTable(self):
-        global path
+        global materialPath
 
-        df = pd.read_csv(path[0])
-        rowCount = len(df.index)
-        columnCount = len(df.columns)
         if self.stackedWidget.currentIndex() == 3:
+            df = pd.read_csv(materialPath[0])
+            rowCount = len(df.index)
+            columnCount = len(df.columns)
             self.excelTable.setColumnCount(columnCount)
             self.excelTable.setRowCount(rowCount)
             self.excelTable.setHorizontalHeaderLabels(list(df.columns))
@@ -153,6 +159,9 @@ class Main(QMainWindow, Ui_MainWindow):
                     self.excelTable.setItem(i, j, QTableWidgetItem(str(df.iat[i, j])))
 
         elif self.stackedWidget.currentIndex() == 7:
+            df = pd.read_csv(assembledPath[0])
+            rowCount = len(df.index)
+            columnCount = len(df.columns)
             self.excelTable2.setColumnCount(columnCount)
             self.excelTable2.setRowCount(rowCount)
             self.excelTable2.setHorizontalHeaderLabels(list(df.columns))
@@ -167,26 +176,46 @@ class Main(QMainWindow, Ui_MainWindow):
         self.materialListItem()
 
     def writeToCSV(self):
-        global path, counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks, infoList
+        global materialPath, counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks, \
+            assembledPath, counter2, pName, tBy, tDate, signature2, sODate2, remarks2, partList, assembledList
 
-        counter = self.counterTextEdit.toPlainText()
-        cAddress = self.cAddressTextEdit.toPlainText()
-        iNumber = self.iNumberTextEdit.toPlainText()
-        iDate = self.iDateEdit.date().toPyDate().strftime("%d-%m-%Y")
-        aTo = self.aToTextEdit.toPlainText()
-        product = self.productTextEdit.toPlainText()
-        quantity = self.quantityTextEdit.toPlainText()
-        signature = self.signatureTextEdit.toPlainText()
-        sODate = self.sODateEdit.date().toPyDate()
-        if self.remarksTextEdit.toPlainText() != "":
-            remarks = self.remarksTextEdit.toPlainText()
-        else:
-            remarks = "-"
-        infoList = [counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks]
+        if self.stackedWidget.currentIndex() == 4:
+            counter = self.counterTextEdit.toPlainText()
+            cAddress = self.cAddressTextEdit.toPlainText()
+            iNumber = self.iNumberTextEdit.toPlainText()
+            iDate = self.iDateEdit.date().toPyDate().strftime("%d-%m-%Y")
+            aTo = self.aToTextEdit.toPlainText()
+            product = self.productTextEdit.toPlainText()
+            quantity = self.quantityTextEdit.toPlainText()
+            signature = self.signatureTextEdit.toPlainText()
+            sODate = self.sODateEdit.date().toPyDate()
+            if self.remarksTextEdit.toPlainText() != "":
+                remarks = self.remarksTextEdit.toPlainText()
+            else:
+                remarks = "-"
+            partList = [counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks]
 
-        with open(path[0], 'a') as excelFile:
-            writer = csv.writer(excelFile)
-            writer.writerow(infoList)
+            with open(materialPath[0], 'a') as excelFile:
+                writer = csv.writer(excelFile)
+                writer.writerow(partList)
+
+        elif self.stackedWidget.currentIndex() == 8:
+            counter2 = self.counterTextEdit2.toPlainText()
+            pName = self.pNameTextEdit.toPlainText()
+            tBy = self.tByTextEdit.toPlainText()
+            tDate = self.tDateEdit.date().toPyDate().strftime("%d-%m-%Y")
+            signature2 = self.signatureTextEdit2.toPlainText()
+            sODate2 = self.sODateEdit2.date().toPyDate().strftime("%d-%m-%Y")
+            if self.remarksTextEdit2.toPlainText() != "":
+                remarks2 = self.remarksTextEdit.toPlainText()
+            else:
+                remarks2 = "-"
+
+            assembledList = [counter2, pName, tBy, tDate, signature2, sODate2, remarks2]
+
+            with open(assembledPath[0], 'a') as excelFile:
+                writer = csv.writer(excelFile)
+                writer.writerow(assembledList)
 
         self.updateCounter()
 
@@ -204,33 +233,57 @@ class Main(QMainWindow, Ui_MainWindow):
             self.writeButton.setEnabled(False)
 
     def updateCounter(self):
-        global path
+        global materialPath, assembledPath
 
-        df = pd.read_csv(path[0])
-        self.counterTextEdit.setPlainText(str(len(df.index) + 1))
+        if self.stackedWidget.currentIndex() == 3:
+            df = pd.read_csv(materialPath[0])
+            self.counterTextEdit.setPlainText(str(len(df.index) + 1))
+        elif self.stackedWidget.currentIndex() == 7:
+            df = pd.read_csv(assembledPath[0])
+            self.counterTextEdit2.setPlainText(str(len(df.index) + 1))
 
     def generateQRCode(self):
-        data = "S/N : " + counter + \
-               "\nCompany Address : " + cAddress + \
-               "\nInvoice Number : " + iNumber + \
-               "\nInvoice Date : " + iDate.strftime("%d-%m-%Y") + \
-               "\nAttention To : " + aTo + \
-               "\nProduct : " + product + \
-               "\nQuantity : " + quantity + \
-               "\nSignature : " + signature + \
-               "\nSigned off Date : " + sODate.strftime("%d-%m-%Y") + \
-               "\nRemarks : " + remarks
-        img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
-        saveName = str(counter) + "_" + str(iNumber) + "_" + str(iDate.strftime("%d%m%Y"))
-        img.save(saveName + ".svg")
-        pixmap = QtGui.QPixmap(saveName + ".svg")
-        self.qrCode.setPixmap(pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio))
-        self.qrCode.show()
+
+        if self.stackedWidget.currentIndex() == 4:
+            data = "S/N : " + counter + \
+                   "\nCompany Address : " + cAddress + \
+                   "\nInvoice Number : " + iNumber + \
+                   "\nInvoice Date : " + str(iDate) + \
+                   "\nAttention To : " + aTo + \
+                   "\nProduct : " + product + \
+                   "\nQuantity : " + quantity + \
+                   "\nSignature : " + signature + \
+                   "\nSigned off Date : " + str(sODate) + \
+                   "\nRemarks : " + remarks
+
+            img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
+            saveName = str(counter) + "_" + str(iNumber) + "_" + str(iDate.replace("-", ""))
+            img.save(saveName + ".svg")
+            pixmap = QtGui.QPixmap(saveName + ".svg")
+            self.qrCode.setPixmap(pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio))
+            self.qrCode.show()
+        elif self.stackedWidget.currentIndex() == 8:
+            # data = "S/N : " + counter2 +"\nProduct Name : " + pName +"\nTested By : " + tBy + "\nTesting Date : " + tDate + "\nSigned off Date : " + sODate2 + "\nRemarks : " + remarks2
+            data =  "S/N : " + counter2 + \
+                    "\nProduct Name : " + pName + \
+                    "\nTested By : " + tBy + \
+                    "\nTesting Date : " + tDate + \
+                    "\nSignature : " + signature2 + \
+                    "\nSigned off Date : " + sODate2 + \
+                    "\nRemarks : " + remarks2
+
+            img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
+            saveName = str(counter) + "_" + str(pName) + "_" + str(tDate.replace("-", ""))
+            img.save(saveName + ".svg")
+            pixmap = QtGui.QPixmap(saveName + ".svg")
+            self.qrCode2.setPixmap(pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio))
+            self.qrCode2.show()
+
 
     def materialListItem(self):
-        global path
+        global materialPath
 
-        df = pd.read_csv(path[0])
+        df = pd.read_csv(materialPath[0])
         excelList = df.values.tolist()
 
         for _ in range(len(excelList)):
