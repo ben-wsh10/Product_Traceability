@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>852</width>
-    <height>701</height>
+    <width>864</width>
+    <height>722</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2609,6 +2609,9 @@
                   <property name="selectionMode">
                    <enum>QAbstractItemView::MultiSelection</enum>
                   </property>
+                  <property name="sortingEnabled">
+                   <bool>true</bool>
+                  </property>
                  </widget>
                 </item>
                </layout>
@@ -2732,8 +2735,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>852</width>
-     <height>21</height>
+     <width>864</width>
+     <height>26</height>
     </rect>
    </property>
   </widget>

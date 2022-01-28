@@ -16,7 +16,7 @@ from Trace import Ui_MainWindow
 csvFileName = ""
 materialPath, assembledPath = "", ""
 counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks = "", "", "", "", "", "", "", "", "", ""
-counter2, pName, tBy, tDate, signature2, sODate2, remarks2 = "", "", "", "", "", "", ""
+counter2, pName, tBy, tDate, signature2, sODate2, remarks2, materials = "", "", "", "", "", "", "", ""
 
 partList, assembledList = [], []
 
@@ -50,6 +50,7 @@ class Main(QMainWindow, Ui_MainWindow):
 
         self.nextButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
         self.nextButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(5))
+        self.nextButton3.clicked.connect(lambda: self.getItem())
         self.nextButton4.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(8))
         self.writeButton.setEnabled(False)
         self.writeButton.clicked.connect(lambda: self.writeToCSV())
@@ -116,7 +117,8 @@ class Main(QMainWindow, Ui_MainWindow):
         directory = os.path.dirname(__file__)
         materialPath = QFileDialog.getOpenFileName(self, "Import File", directory, 'All Files (*.*)')
 
-        if materialPath[0].endswith(".text") or materialPath[0].endswith(".txt") or materialPath[0].endswith(".csv") or materialPath[0].endswith(".xslx"):
+        if materialPath[0].endswith(".text") or materialPath[0].endswith(".txt") or materialPath[0].endswith(".csv") or \
+                materialPath[0].endswith(".xslx"):
             if self.stackedWidget.currentIndex() == 2:
                 self.openFileNameTextEdit.setPlainText(materialPath[0])
             elif self.stackedWidget.currentIndex() == 6:
@@ -133,7 +135,8 @@ class Main(QMainWindow, Ui_MainWindow):
         directory = os.path.dirname(__file__)
         assembledPath = QFileDialog.getOpenFileName(self, "Import File", directory, 'All Files (*.*)')
 
-        if assembledPath[0].endswith(".text") or assembledPath[0].endswith(".txt") or assembledPath[0].endswith(".csv") or assembledPath[0].endswith(".xslx"):
+        if assembledPath[0].endswith(".text") or assembledPath[0].endswith(".txt") or assembledPath[0].endswith(
+                ".csv") or assembledPath[0].endswith(".xslx"):
             if self.stackedWidget.currentIndex() == 6:
                 self.openFileNameTextEdit3.setPlainText(assembledPath[0])
         else:
@@ -177,7 +180,7 @@ class Main(QMainWindow, Ui_MainWindow):
 
     def writeToCSV(self):
         global materialPath, counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks, \
-            assembledPath, counter2, pName, tBy, tDate, signature2, sODate2, remarks2, partList, assembledList
+            assembledPath, counter2, pName, tBy, tDate, signature2, sODate2, remarks2, materials, partList, assembledList
 
         if self.stackedWidget.currentIndex() == 4:
             counter = self.counterTextEdit.toPlainText()
@@ -206,14 +209,16 @@ class Main(QMainWindow, Ui_MainWindow):
             tDate = self.tDateEdit.date().toPyDate().strftime("%d-%m-%Y")
             signature2 = self.signatureTextEdit2.toPlainText()
             sODate2 = self.sODateEdit2.date().toPyDate().strftime("%d-%m-%Y")
-            if self.remarksTextEdit2.toPlainText() != "":
-                remarks2 = self.remarksTextEdit.toPlainText()
+            if self.remarksTextEdit2.toPlainText():
+                remarks2 = self.remarksTextEdit2.toPlainText()
             else:
                 remarks2 = "-"
 
-            assembledList = [counter2, pName, tBy, tDate, signature2, sODate2, remarks2]
+            materials = self.getItem()
 
-            with open(assembledPath[0], 'a') as excelFile:
+            assembledList = [counter2, pName, tBy, tDate, signature2, sODate2, materials]
+
+            with open(assembledPath[0], 'a+', newline="") as excelFile:
                 writer = csv.writer(excelFile)
                 writer.writerow(assembledList)
 
@@ -264,21 +269,22 @@ class Main(QMainWindow, Ui_MainWindow):
             self.qrCode.show()
         elif self.stackedWidget.currentIndex() == 8:
             # data = "S/N : " + counter2 +"\nProduct Name : " + pName +"\nTested By : " + tBy + "\nTesting Date : " + tDate + "\nSigned off Date : " + sODate2 + "\nRemarks : " + remarks2
-            data =  "S/N : " + counter2 + \
-                    "\nProduct Name : " + pName + \
-                    "\nTested By : " + tBy + \
-                    "\nTesting Date : " + tDate + \
-                    "\nSignature : " + signature2 + \
-                    "\nSigned off Date : " + sODate2 + \
-                    "\nRemarks : " + remarks2
-
+            data = "S/N : " + counter2 + \
+                   "\nProduct Name : " + pName + \
+                   "\nTested By : " + tBy + \
+                   "\nTesting Date : " + tDate + \
+                   "\nSignature : " + signature2 + \
+                   "\nSigned off Date : " + sODate2 + \
+                   "\nRemarks : " + remarks2 + \
+                   "\nProduct Parts : "
+            data = data + self.getItem()
+            print(data)
             img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
             saveName = str(counter) + "_" + str(pName) + "_" + str(tDate.replace("-", ""))
             img.save(saveName + ".svg")
             pixmap = QtGui.QPixmap(saveName + ".svg")
             self.qrCode2.setPixmap(pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio))
             self.qrCode2.show()
-
 
     def materialListItem(self):
         global materialPath
@@ -291,6 +297,22 @@ class Main(QMainWindow, Ui_MainWindow):
             convertedList = [str(element) for element in tmp]
             joinedString = ", ".join(convertedList)
             self.materialList.addItem(joinedString)
+
+    def getItem(self):
+
+        extraList = []
+        for _ in range(self.includeList.count()):
+            tmpCurrentMaterialList = self.includeList.item(_).text().split(",")
+            tmpSortedList = ["[" +
+                             tmpCurrentMaterialList.pop(5),  # Product Part name
+                             tmpCurrentMaterialList.pop(1),  # Company Address
+                             tmpCurrentMaterialList.pop(1),  # Invoice Number
+                             tmpCurrentMaterialList.pop(1)
+                             + " ]"]  # Invoice Date
+            tmpString = ",".join(tmpSortedList)
+            extraList.append(tmpString)
+        extraString = ", ".join(extraList)
+        return extraString
 
 
 if __name__ == '__main__':
