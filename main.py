@@ -61,10 +61,9 @@ class Main(QMainWindow, Ui_MainWindow):
         self.writeButton.setEnabled(False)
         self.writeButton.clicked.connect(lambda: self.writeToCSV())
         self.writeButton.clicked.connect(lambda: self.generateQRCode())
-        self.writeButton.clicked.connect(lambda: self.populateTable())
+        self.writeButton2.setEnabled(False)
         self.writeButton2.clicked.connect(lambda: self.writeToCSV())
         self.writeButton2.clicked.connect(lambda: self.generateQRCode())
-        self.writeButton2.clicked.connect(lambda: self.populateTable())
         #
         self.importExcelButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
         self.importExcelButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(6))
@@ -92,6 +91,11 @@ class Main(QMainWindow, Ui_MainWindow):
         self.productTextEdit.textChanged.connect(lambda: self.boolWriteButton())
         self.quantityTextEdit.textChanged.connect(lambda: self.boolWriteButton())
         self.signatureTextEdit.textChanged.connect(lambda: self.boolWriteButton())
+        #
+        self.counterTextEdit2.textChanged.connect(lambda: self.boolWriteButton())
+        self.pNameTextEdit.textChanged.connect(lambda: self.boolWriteButton())
+        self.tByTextEdit.textChanged.connect(lambda: self.boolWriteButton())
+        self.signatureTextEdit2.textChanged.connect(lambda: self.boolWriteButton())
 
     # Reset field, functionality, etc.. where applicable
     def resetFunction(self):
@@ -114,17 +118,17 @@ class Main(QMainWindow, Ui_MainWindow):
     def createCSV(self):
         global csvFileName
 
-        if self.stackedWidget.currentIndex() == 1:
+        if self.stackedWidget.currentWidget().objectName() == "CreateMaterialExcelPage":
             csvFileName = self.newFileNameTextEdit.toPlainText() + ".csv"
-        elif self.stackedWidget.currentIndex() == 5:
+        elif self.stackedWidget.currentWidget().objectName() == "CreateAssembledExcelPage":
             csvFileName = self.newFileNameTextEdit2.toPlainText() + ".csv"
 
         with open(csvFileName, 'w') as newFile:
             writer = csv.writer(newFile)
-            if self.stackedWidget.currentIndex() == 1:
+            if self.stackedWidget.currentWidget().objectName() == "CreateMaterialExcelPage":
                 header = ['S/N', 'Company Address', 'Invoice No.', 'Invoice Date', 'Attn To', 'Model', 'Quantity',
                           'Signature', 'Date']
-            elif self.stackedWidget.currentIndex() == 5:
+            elif self.stackedWidget.currentWidget().objectName() == "CreateAssembledExcelPage":
                 header = ['S/N', 'Product Name', 'Tested By', 'Testing Date', 'Signature', 'Sign off Date',
                           'Remarks', 'Materials']
             writer.writerow(header)
@@ -143,10 +147,10 @@ class Main(QMainWindow, Ui_MainWindow):
 
         if materialPath[0].endswith(".text") or materialPath[0].endswith(".txt") or materialPath[0].endswith(".csv") or \
                 materialPath[0].endswith(".xlsx"):
-            if self.stackedWidget.currentIndex() == 2:
+            if self.stackedWidget.currentWidget().objectName() == "ImportMaterialPage":
                 self.openFileNameTextEdit.setPlainText(materialPath[0])
                 self.openFileButton.setEnabled(True)
-            elif self.stackedWidget.currentIndex() == 6:
+            elif self.stackedWidget.currentWidget().objectName() == "ImportProductPage":
                 self.openFileNameTextEdit2.setPlainText(materialPath[0])
                 browseMaterial = True
             if browseMaterial and browseAssembled is True:
@@ -166,22 +170,22 @@ class Main(QMainWindow, Ui_MainWindow):
 
         if assembledPath[0].endswith(".text") or assembledPath[0].endswith(".txt") or assembledPath[0].endswith(
                 ".csv") or assembledPath[0].endswith(".xlsx"):
-            if self.stackedWidget.currentIndex() == 6:
+            if self.stackedWidget.currentWidget().objectName() == "ImportProductPage":
                 self.openFileNameTextEdit3.setPlainText(assembledPath[0])
                 browseAssembled = True
-        if browseMaterial and browseAssembled is True:
-            self.openFileButton2.setEnabled(True)
         else:
             msg = QMessageBox()
             msg.setWindowTitle("Error!")
             msg.setText("Invalid file type. Please select another file.")
             msg.exec_()
+        if browseMaterial and browseAssembled is True:
+            self.openFileButton2.setEnabled(True)
 
     # Populate excel sheet table into Widget
     def populateTable(self):
         global materialPath
 
-        if self.stackedWidget.currentIndex() == 3:
+        if self.stackedWidget.currentWidget().objectName() == "readMaterialExcelPage":
             df = pd.read_csv(materialPath[0])
             rowCount = len(df.index)
             columnCount = len(df.columns)
@@ -194,7 +198,7 @@ class Main(QMainWindow, Ui_MainWindow):
                 for j in range(columnCount):
                     self.excelTable.setItem(i, j, QTableWidgetItem(str(df.iat[i, j])))
 
-        elif self.stackedWidget.currentIndex() == 7:
+        elif self.stackedWidget.currentWidget().objectName() == "readAssembledExcelPage":
             df = pd.read_csv(assembledPath[0])
             rowCount = len(df.index)
             columnCount = len(df.columns)
@@ -215,7 +219,7 @@ class Main(QMainWindow, Ui_MainWindow):
         global materialPath, counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks, \
             assembledPath, counter2, pName, tBy, tDate, signature2, sODate2, remarks2, materials, partList, assembledList
 
-        if self.stackedWidget.currentIndex() == 4:
+        if self.stackedWidget.currentWidget().objectName() == "materialInputPage":
             counter = self.counterTextEdit.toPlainText()
             cAddress = self.cAddressTextEdit.toPlainText()
             iNumber = self.iNumberTextEdit.toPlainText()
@@ -225,17 +229,19 @@ class Main(QMainWindow, Ui_MainWindow):
             quantity = self.quantityTextEdit.toPlainText()
             signature = self.signatureTextEdit.toPlainText()
             sODate = self.sODateEdit.date().toPyDate()
-            if self.remarksTextEdit.toPlainText() != "":
+            if self.remarksTextEdit.toPlainText():
                 remarks = self.remarksTextEdit.toPlainText()
             else:
                 remarks = "-"
+
             partList = [counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks]
 
-            with open(materialPath[0], 'a') as excelFile:
-                writer = csv.writer(excelFile)
-                writer.writerow(partList)
+            with open(materialPath[0], 'w', newline="") as excelFile:
+                if partList:
+                    writer = csv.writer(excelFile)
+                    writer.writerow(partList)
 
-        elif self.stackedWidget.currentIndex() == 8:
+        elif self.stackedWidget.currentWidget().objectName() == "assembledInputPage":
             counter2 = self.counterTextEdit2.toPlainText()
             pName = self.pNameTextEdit.toPlainText()
             tBy = self.tByTextEdit.toPlainText()
@@ -248,43 +254,54 @@ class Main(QMainWindow, Ui_MainWindow):
                 remarks2 = "-"
 
             materials = self.getItem()
+            assembledList = [counter2, pName, tBy, tDate, signature2, sODate2, remarks2, materials]
 
-            assembledList = [counter2, pName, tBy, tDate, signature2, sODate2, materials]
-
-            with open(assembledPath[0], 'a+', newline="") as excelFile:
-                writer = csv.writer(excelFile)
-                writer.writerow(assembledList)
+            with open(assembledPath[0], 'a', newline="") as excelFile:
+                if assembledList:
+                    writer = csv.writer(excelFile)
+                    writer.writerow(assembledList)
 
         self.updateCounter()
 
     # Condition trigger for writing to csv and qr generator
     def boolWriteButton(self):
 
-        if len(self.counterTextEdit.toPlainText().strip()) != 0 and \
-                len(self.cAddressTextEdit.toPlainText().strip()) != 0 and \
-                len(self.iNumberTextEdit.toPlainText().strip()) != 0 and \
-                len(self.aToTextEdit.toPlainText().strip()) != 0 and \
-                len(self.productTextEdit.toPlainText().strip()) != 0 and \
-                len(self.quantityTextEdit.toPlainText().strip()) != 0 and \
-                len(self.signatureTextEdit.toPlainText().strip()) != 0:
-            self.writeButton.setEnabled(True)
-        else:
-            self.writeButton.setEnabled(False)
+        if self.stackedWidget.currentWidget().objectName() == "materialInputPage":
+            if len(self.counterTextEdit.toPlainText().strip()) != 0 and \
+                    len(self.cAddressTextEdit.toPlainText().strip()) != 0 and \
+                    len(self.iNumberTextEdit.toPlainText().strip()) != 0 and \
+                    len(self.aToTextEdit.toPlainText().strip()) != 0 and \
+                    len(self.productTextEdit.toPlainText().strip()) != 0 and \
+                    len(self.quantityTextEdit.toPlainText().strip()) != 0 and \
+                    len(self.signatureTextEdit.toPlainText().strip()) != 0:
+                self.writeButton.setEnabled(True)
+            else:
+                self.writeButton.setEnabled(False)
+        elif self.stackedWidget.currentWidget().objectName() == "assembledInputPage":
+            if len(self.counterTextEdit2.toPlainText().strip()) != 0 and \
+                    len(self.pNameTextEdit.toPlainText().strip()) != 0 and \
+                    len(self.tByTextEdit.toPlainText().strip()) != 0 and \
+                    len(self.signatureTextEdit2.toPlainText().strip()) != 0:
+                self.writeButton2.setEnabled(True)
+            else:
+                self.writeButton2.setEnabled(False)
 
     # Update S/N counter
     def updateCounter(self):
         global materialPath, assembledPath
 
-        if self.stackedWidget.currentIndex() == 3:
+        if self.stackedWidget.currentWidget().objectName() == "readMaterialExcelPage" or \
+            self.stackedWidget.currentWidget().objectName() == "materialInputPage":
             df = pd.read_csv(materialPath[0])
             self.counterTextEdit.setPlainText(str(len(df.index) + 1))
-        elif self.stackedWidget.currentIndex() == 7:
+        elif self.stackedWidget.currentWidget().objectName() == "readAssembledExcelPage" or \
+            self.stackedWidget.currentWidget().objectName() == "assembledInputPage":
             df = pd.read_csv(assembledPath[0])
             self.counterTextEdit2.setPlainText(str(len(df.index) + 1))
 
     # QR Code generator
     def generateQRCode(self):
-        if self.stackedWidget.currentIndex() == 4:
+        if self.stackedWidget.currentWidget().objectName() == "materialInputPage":
             data = "S/N : " + counter + \
                    "\nCompany Address : " + cAddress + \
                    "\nInvoice Number : " + iNumber + \
@@ -301,7 +318,7 @@ class Main(QMainWindow, Ui_MainWindow):
             pixmap = QtGui.QPixmap(saveName + ".svg")
             self.qrCode.setPixmap(pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio))
             self.qrCode.show()
-        elif self.stackedWidget.currentIndex() == 8:
+        elif self.stackedWidget.currentWidget().objectName() == "assembledInputPage":
             data = "S/N : " + counter2 + \
                    "\nProduct Name : " + pName + \
                    "\nTested By : " + tBy + \

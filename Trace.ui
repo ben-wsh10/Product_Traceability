@@ -23,7 +23,7 @@
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>0</number>
+         <number>4</number>
         </property>
         <widget class="QWidget" name="MainMenuPage">
          <layout class="QVBoxLayout" name="verticalLayout_38">
@@ -464,7 +464,7 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="readExcelPage">
+        <widget class="QWidget" name="readMaterialExcelPage">
          <layout class="QVBoxLayout" name="verticalLayout_8">
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -1903,7 +1903,7 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="page">
+        <widget class="QWidget" name="readAssembledExcelPage">
          <layout class="QVBoxLayout" name="verticalLayout_31">
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_27">
