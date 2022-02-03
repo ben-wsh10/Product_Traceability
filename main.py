@@ -1,12 +1,10 @@
+import hashlib
 import os
 import sys
 
-from PyQt5 import QtSvg, QtGui, QtCore
+from PyQt5 import QtGui, QtCore
 
-import Controller
-from PyQt5.QtCore import QTime, QSize
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QTableWidgetItem, QHeaderView, \
-    QCalendarWidget, QListWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QTableWidgetItem, QHeaderView
 import csv
 import pandas as pd
 import qrcode.image.svg
@@ -54,16 +52,16 @@ class Main(QMainWindow, Ui_MainWindow):
         self.backButton8.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(6))
         #
         self.nextButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
-        self.nextButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(5))
-        self.nextButton3.clicked.connect(lambda: self.getItem())
+        self.nextButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+        self.nextButton3.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.nextButton4.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(8))
         #
         self.writeButton.setEnabled(False)
         self.writeButton.clicked.connect(lambda: self.writeToCSV())
-        self.writeButton.clicked.connect(lambda: self.generateQRCode())
+        # self.writeButton.clicked.connect(lambda: self.generateQRCode())
         self.writeButton2.setEnabled(False)
         self.writeButton2.clicked.connect(lambda: self.writeToCSV())
-        self.writeButton2.clicked.connect(lambda: self.generateQRCode())
+        # self.writeButton2.clicked.connect(lambda: self.generateQRCode())
         #
         self.importExcelButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
         self.importExcelButton2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(6))
@@ -123,13 +121,13 @@ class Main(QMainWindow, Ui_MainWindow):
         elif self.stackedWidget.currentWidget().objectName() == "CreateAssembledExcelPage":
             csvFileName = self.newFileNameTextEdit2.toPlainText() + ".csv"
 
-        with open(csvFileName, 'w') as newFile:
+        with open(csvFileName, 'w', newline="") as newFile:
             writer = csv.writer(newFile)
             if self.stackedWidget.currentWidget().objectName() == "CreateMaterialExcelPage":
                 header = ['S/N', 'Company Address', 'Invoice No.', 'Invoice Date', 'Attn To', 'Model', 'Quantity',
-                          'Signature', 'Date']
+                          'Signature', 'Date', 'Remarks']
             elif self.stackedWidget.currentWidget().objectName() == "CreateAssembledExcelPage":
-                header = ['S/N', 'Product Name', 'Tested By', 'Testing Date', 'Signature', 'Sign off Date',
+                header = ['S/N', 'Unique ID', 'Product Name', 'Tested By', 'Testing Date', 'Signature', 'Sign off Date',
                           'Remarks', 'Materials']
             writer.writerow(header)
 
@@ -186,12 +184,13 @@ class Main(QMainWindow, Ui_MainWindow):
         global materialPath
 
         if self.stackedWidget.currentWidget().objectName() == "readMaterialExcelPage":
-            df = pd.read_csv(materialPath[0])
+            df = pd.read_csv(materialPath[0], dtype=str)
             rowCount = len(df.index)
             columnCount = len(df.columns)
             self.excelTable.setColumnCount(columnCount)
             self.excelTable.setRowCount(rowCount)
             self.excelTable.setHorizontalHeaderLabels(list(df.columns))
+            self.excelTable.horizontalHeader().setVisible(True)
             self.excelTable.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
 
             for i in range(rowCount):
@@ -199,12 +198,13 @@ class Main(QMainWindow, Ui_MainWindow):
                     self.excelTable.setItem(i, j, QTableWidgetItem(str(df.iat[i, j])))
 
         elif self.stackedWidget.currentWidget().objectName() == "readAssembledExcelPage":
-            df = pd.read_csv(assembledPath[0])
+            df = pd.read_csv(assembledPath[0], dtype=str)
             rowCount = len(df.index)
             columnCount = len(df.columns)
             self.excelTable2.setColumnCount(columnCount)
             self.excelTable2.setRowCount(rowCount)
             self.excelTable2.setHorizontalHeaderLabels(list(df.columns))
+            self.excelTable2.horizontalHeader().setVisible(True)
             self.excelTable2.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
 
             for i in range(rowCount):
@@ -217,7 +217,8 @@ class Main(QMainWindow, Ui_MainWindow):
     # Write input into existing csv files
     def writeToCSV(self):
         global materialPath, counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks, \
-            assembledPath, counter2, pName, tBy, tDate, signature2, sODate2, remarks2, materials, partList, assembledList
+            assembledPath, counter2, pName, tBy, tDate, signature2, sODate2, remarks2, materials, partList, \
+            assembledList
 
         if self.stackedWidget.currentWidget().objectName() == "materialInputPage":
             counter = self.counterTextEdit.toPlainText()
@@ -234,9 +235,9 @@ class Main(QMainWindow, Ui_MainWindow):
             else:
                 remarks = "-"
 
-            partList = [counter, cAddress, iNumber, iDate, aTo, product, quantity, signature, sODate, remarks]
-
-            with open(materialPath[0], 'w', newline="") as excelFile:
+            partList = [counter, cAddress, str(iNumber), iDate, aTo, product, quantity, signature, sODate, remarks]
+            self.generateQRCode()
+            with open(materialPath[0], 'a+', newline='') as excelFile:
                 if partList:
                     writer = csv.writer(excelFile)
                     writer.writerow(partList)
@@ -255,12 +256,17 @@ class Main(QMainWindow, Ui_MainWindow):
 
             materials = self.getItem()
             assembledList = [counter2, pName, tBy, tDate, signature2, sODate2, remarks2, materials]
+            assembledList.insert(1, self.generateQRCode())
 
-            with open(assembledPath[0], 'a', newline="") as excelFile:
+            with open(assembledPath[0], 'a+', newline='') as excelFile:
                 if assembledList:
                     writer = csv.writer(excelFile)
                     writer.writerow(assembledList)
 
+        msg = QMessageBox()
+        msg.setWindowTitle("Success!")
+        msg.setText("Excel updated.")
+        msg.exec_()
         self.updateCounter()
 
     # Condition trigger for writing to csv and qr generator
@@ -292,15 +298,38 @@ class Main(QMainWindow, Ui_MainWindow):
 
         if self.stackedWidget.currentWidget().objectName() == "readMaterialExcelPage" or \
             self.stackedWidget.currentWidget().objectName() == "materialInputPage":
-            df = pd.read_csv(materialPath[0])
+            df = pd.read_csv(materialPath[0], dtype=str)
             self.counterTextEdit.setPlainText(str(len(df.index) + 1))
         elif self.stackedWidget.currentWidget().objectName() == "readAssembledExcelPage" or \
             self.stackedWidget.currentWidget().objectName() == "assembledInputPage":
-            df = pd.read_csv(assembledPath[0])
+            df = pd.read_csv(assembledPath[0], dtype=str)
             self.counterTextEdit2.setPlainText(str(len(df.index) + 1))
 
     # QR Code generator
     def generateQRCode(self):
+
+        if self.stackedWidget.currentWidget().objectName() == "materialInputPage":
+            processedData = self.processData()
+            img = qrcode.make(processedData, image_factory=qrcode.image.svg.SvgPathFillImage)
+            saveName = str(counter) + "_" + str(iNumber) + "_" + str(iDate.replace("-", ""))
+            img.save(saveName + ".svg")
+            pixmap = QtGui.QPixmap(saveName + ".svg")
+            self.qrCode.setPixmap(pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio))
+            self.qrCode.show()
+
+        elif self.stackedWidget.currentWidget().objectName() == "assembledInputPage":
+            processedData = self.processData()
+            encryptedData = self.encryptData(processedData)
+            saveName = str(counter2) + "_" + str(encryptedData)
+            img = qrcode.make(encryptedData, image_factory=qrcode.image.svg.SvgPathFillImage)
+            img.save(saveName + ".svg")
+            pixmap = QtGui.QPixmap(saveName + ".svg")
+            self.qrCode2.setPixmap(pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio))
+            self.qrCode2.show()
+
+            return encryptedData
+
+    def processData(self):
         if self.stackedWidget.currentWidget().objectName() == "materialInputPage":
             data = "S/N : " + counter + \
                    "\nCompany Address : " + cAddress + \
@@ -312,12 +341,8 @@ class Main(QMainWindow, Ui_MainWindow):
                    "\nSignature : " + signature + \
                    "\nSigned off Date : " + str(sODate) + \
                    "\nRemarks : " + remarks
-            img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
-            saveName = str(counter) + "_" + str(iNumber) + "_" + str(iDate.replace("-", ""))
-            img.save(saveName + ".svg")
-            pixmap = QtGui.QPixmap(saveName + ".svg")
-            self.qrCode.setPixmap(pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio))
-            self.qrCode.show()
+            return data
+
         elif self.stackedWidget.currentWidget().objectName() == "assembledInputPage":
             data = "S/N : " + counter2 + \
                    "\nProduct Name : " + pName + \
@@ -329,18 +354,22 @@ class Main(QMainWindow, Ui_MainWindow):
                    "\nProduct Parts : "
             # Add Material List items into data
             data = data + self.getItem()
-            img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
-            saveName = str(counter) + "_" + str(pName) + "_" + str(tDate.replace("-", ""))
-            img.save(saveName + ".svg")
-            pixmap = QtGui.QPixmap(saveName + ".svg")
-            self.qrCode2.setPixmap(pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio))
-            self.qrCode2.show()
+            return data
+
+    def encryptData(self, data):
+        hashData = hashlib.md5(data.encode())
+        hashData = hashData.hexdigest()
+        print(hashData)
+        print(type(hashData))
+
+        return hashData
 
     # Display Material List items into Widget
     def materialListItem(self):
         global materialPath
 
         df = pd.read_csv(materialPath[0])
+        print(df)
         excelList = df.values.tolist()
 
         for _ in range(len(excelList)):
