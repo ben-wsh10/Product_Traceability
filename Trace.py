@@ -1055,6 +1055,7 @@ class Ui_MainWindow(object):
         self.qrCode2.setSizePolicy(sizePolicy)
         self.qrCode2.setMinimumSize(QtCore.QSize(150, 150))
         self.qrCode2.setMaximumSize(QtCore.QSize(150, 150))
+        self.qrCode2.setText("")
         self.qrCode2.setAlignment(QtCore.Qt.AlignCenter)
         self.qrCode2.setObjectName("qrCode2")
         self.verticalLayout_16.addWidget(self.qrCode2, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignBottom)
@@ -1149,7 +1150,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addLayout(self.horizontalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 864, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 864, 21))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -1157,7 +1158,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(8)
+        self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1216,7 +1217,6 @@ class Ui_MainWindow(object):
         self.label_16.setText(_translate("MainWindow", "Signature :   "))
         self.label_17.setText(_translate("MainWindow", "Sign off Date :   "))
         self.label_18.setText(_translate("MainWindow", "Remarks :   "))
-        self.qrCode2.setText(_translate("MainWindow", "QR Code"))
         self.writeButton2.setText(_translate("MainWindow", "Generate QR Code and Write to Excel"))
         self.label_19.setText(_translate("MainWindow", "Material List"))
         self.materialList.setSortingEnabled(True)

@@ -23,7 +23,7 @@
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>8</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="MainMenuPage">
          <layout class="QVBoxLayout" name="verticalLayout_38">
@@ -2529,7 +2529,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>QR Code</string>
+                   <string/>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignCenter</set>
@@ -2736,7 +2736,7 @@
      <x>0</x>
      <y>0</y>
      <width>864</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
